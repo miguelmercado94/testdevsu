@@ -1,0 +1,28 @@
+package com.devsu.micropersona.dominio.servicio;
+
+import java.util.Date;
+import java.util.List;
+
+import com.devsu.micropersona.dominio.dto.ClienteDTORequest;
+
+public interface IClienteServicio {
+
+	ClienteDTORequest crearNuevoCliente(ClienteDTORequest cliente);
+	
+	ClienteDTORequest actualizarCliente(ClienteDTORequest cliente);
+	
+	void eliminarCliente(String identificacion);
+	
+	ClienteDTORequest obtenerClienteFull(String identificacion);
+	
+	ClienteDTORequest obtenerCliente(String identificacion);
+	
+	ClienteDTORequest obtenerClienteYReporteCuenta(String identificacion, String nummeroCuenta,
+			Date fechaInicial, Date fechaFinal);
+	
+	List<ClienteDTORequest> obtenerTodosClienteSinDatosCuenta();
+
+	List<ClienteDTORequest> obtenerTodosClienteDatosCuenta();
+
+	
+}

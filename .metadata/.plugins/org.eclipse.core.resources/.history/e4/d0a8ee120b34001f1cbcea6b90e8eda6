@@ -1,0 +1,91 @@
+package com.devsu.microcuenta.dominio.controller;
+
+import com.devsu.microcuenta.dominio.dto.CuentaDto;
+import com.devsu.microcuenta.dominio.servicio.CuentaServicio;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/cuentas/v1")
+public class CuentaController {
+
+    @Autowired
+    private CuentaServicio cuentaServicio;
+
+    @PostMapping
+    public ResponseEntity<CuentaDto> agregarNuevaCuenta(@RequestBody CuentaDto cuentaDto) {
+    	
+        CuentaDto nuevaCuenta = cuentaServicio.agregarNuevaCuenta(cuentaDto);
+        return ResponseEntity.ok(nuevaCuenta);
+    }
+
+    @PutMapping
+    public ResponseEntity<CuentaDto> actualizarCuenta(@RequestBody CuentaDto cuentaDto) {
+        CuentaDto cuentaActualizada = cuentaServicio.actualizarCuenta(cuentaDto);
+        return ResponseEntity.ok(cuentaActualizada);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<CuentaDto> obtenerCuentaPorNumero(@RequestParam String numeroCuenta) {
+        CuentaDto cuenta = cuentaServicio.obtenerCuentaPorNumero(numeroCuenta);
+        return ResponseEntity.ok(cuenta);
+    }
+    
+    @GetMapping("/reporte")
+    public ResponseEntity<?> obtenerCuentaPorRangoFecha(@RequestParam String numeroCuenta,
+    		@RequestParam String fechaInicial, @RequestParam String fechaFinal) {
+    	
+    	Date fechaIn = null;
+    	Date fechaFin = null;
+    	
+    	 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    	
+    	try {
+        fechaIn = sdf.parse(fechaInicial);
+        
+        fechaIn.setHours(0);
+        fechaIn.setMinutes(0);
+        fechaIn.setSeconds(0);
+        
+        fechaFin = sdf.parse(fechaFinal);
+        // Ajustar la fecha al último segundo del día
+        fechaFin.setHours(23);
+        fechaFin.setMinutes(59);
+        fechaFin.setSeconds(59);
+    	
+        CuentaDto cuenta = cuentaServicio.reporteMovimientosCuentaPorRangoFecha(numeroCuenta
+        		, fechaIn, fechaFin);
+        return ResponseEntity.ok(cuenta);
+        
+    	}catch(Exception e) {
+    		
+    		System.out.println(e.getMessage());
+    		return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    	}
+
+    }
+
+    @GetMapping("/cliente/{identificacion}")
+    public ResponseEntity<List<CuentaDto>> obtenerCuentasPorCliente(@PathVariable String identificacion) {
+        List<CuentaDto> cuentas = cuentaServicio.obtenerCuentasPorCliente(identificacion);
+        return ResponseEntity.ok(cuentas);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CuentaDto>> obtenerTodasLasCuentas() {
+        List<CuentaDto> cuentas = cuentaServicio.obtenerTodaslasCuentas();
+        return ResponseEntity.ok(cuentas);
+    }
+
+    @DeleteMapping("/{numeroCuenta}")
+    public ResponseEntity<Void> eliminarCuenta(@PathVariable String numeroCuenta) {
+        cuentaServicio.eliminarCuenta(numeroCuenta);
+        return ResponseEntity.noContent().build();
+    }
+}

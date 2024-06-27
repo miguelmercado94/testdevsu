@@ -1,0 +1,20 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.devsu</groupId>
+    <artifactId>devsuparent</artifactId>
+    <version>0.0.1</version>
+  </parent>
+  <artifactId>devsuinfrestructura</artifactId>
+  <packaging>pom</packaging>
+  <name>devsuinfrestructura</name>
+   <properties>
+        <spring-cloud-dependencies.version>2021.0.0</spring-cloud-dependencies.version>
+        <spring-cloud-config-server.version>2.2.5.RELEASE</spring-cloud-config-server.version>
+        <spring-cloud-starter-eureka.version>1.4.7.RELEASE</spring-cloud-starter-eureka.version>
+        <spring-cloud-starter-feign.version>1.4.7.RELEASE</spring-cloud-starter-feign.version>
+        <spring-cloud-starter-hystrix.version>1.4.7.RELEASE</spring-cloud-starter-hystrix.version>
+        <spring-cloud-stream.version>3.0.7.RELEASE</spring-cloud-stream.version>
+    </properties>
+   
+</project>

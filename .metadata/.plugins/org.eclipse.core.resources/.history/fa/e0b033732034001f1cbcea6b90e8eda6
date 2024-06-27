@@ -1,0 +1,39 @@
+version: '3'
+services:
+  eurekaserver:
+    image: devsu/microservice-docker-eurekaserver3:0.0.1
+    container_name: eurekaserver
+    ports:
+      - "8761:8761"
+    networks:
+      devsu_network:
+        ipv4_address: 172.20.0.2
+
+  personadevsu:
+    image: devsu/microservice-docker-personadevsu:0.0.1
+    container_name: personadevsu
+    ports:
+      - "8087:8087"
+    depends_on:
+      - eurekaserver
+    networks:
+      devsu_network:
+        ipv4_address: 172.20.0.3
+
+  cuentadevsu:
+    image: devsu/microservice-docker-cuentadevsu:0.0.1
+    container_name: cuentadevsu
+    ports:
+      - "8086:8086"
+    depends_on:
+      - eurekaserver
+    networks:
+      devsu_network:
+        ipv4_address: 172.20.0.4
+
+networks:
+  devsu_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

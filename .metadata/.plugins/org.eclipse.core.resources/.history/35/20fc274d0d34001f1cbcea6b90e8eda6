@@ -1,0 +1,41 @@
+package com.devsu.microcuenta.dominio.controller;
+
+import com.devsu.microcuenta.dominio.dto.MovimientoDTO;
+import com.devsu.microcuenta.dominio.servicio.MovimientoServicio;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/movimientos/v1")
+public class MovimientoController {
+
+    @Autowired
+    private MovimientoServicio movimientoServicio;
+
+    @PostMapping
+    public ResponseEntity<MovimientoDTO> agregarNuevoMovimiento(@RequestBody MovimientoDTO dto) {
+        MovimientoDTO nuevoMovimiento = movimientoServicio.agregarNuevoMovimiento(dto);
+        return ResponseEntity.ok(nuevoMovimiento);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MovimientoDTO> obtenerMovimiento(@PathVariable Long id) {
+        MovimientoDTO movimiento = movimientoServicio.obtenerMovimiento(id);
+        return ResponseEntity.ok(movimiento);
+    }
+
+    @GetMapping("/cuenta/{idCuenta}")
+    public ResponseEntity<List<MovimientoDTO>> obtenerMovimientosPorCuenta(@PathVariable Long idCuenta) {
+        List<MovimientoDTO> movimientos = movimientoServicio.obtenerMovimientosPorCuenta(idCuenta);
+        return ResponseEntity.ok(movimientos);
+    }
+
+    @GetMapping("/cuenta/numero/{numeroCuenta}")
+    public ResponseEntity<List<MovimientoDTO>> obtenerMovimientosPorNumeroCuenta(@PathVariable String numeroCuenta) {
+        List<MovimientoDTO> movimientos = movimientoServicio.obtenerMovimientosPorNumeroCuenta(numeroCuenta);
+        return ResponseEntity.ok(movimientos);
+    }
+}

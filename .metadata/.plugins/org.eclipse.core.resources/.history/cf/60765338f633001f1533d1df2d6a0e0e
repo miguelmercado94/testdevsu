@@ -1,0 +1,14 @@
+com\devsu\micropersona\dominio\util\UtilServicio.class
+com\devsu\micropersona\bd\entidad\Persona$Genero.class
+com\devsu\micropersona\dominio\dto\ClienteDTORequest.class
+com\devsu\micropersona\bd\repositorio\PersonaRepositorio.class
+com\devsu\micropersona\bd\entidad\Persona.class
+com\devsu\micropersona\dominio\dto\CuentaDto.class
+com\devsu\micropersona\dominio\dto\MovimientoDTO.class
+com\devsu\micropersona\dominio\servicio\ClienteServicio.class
+com\devsu\micropersona\dominio\servicio\IClienteServicio.class
+com\devsu\micropersona\bd\repositorio\ClienteRepositorio.class
+com\devsu\micropersona\dominio\controller\ClienteController.class
+com\devsu\micropersona\PersonadevsuApplication.class
+com\devsu\micropersona\bd\entidad\Cliente.class
+com\devsu\micropersona\dominio\mapper\ClienteMapper.class

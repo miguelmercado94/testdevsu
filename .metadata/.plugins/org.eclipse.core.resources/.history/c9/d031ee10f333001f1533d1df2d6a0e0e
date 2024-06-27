@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: eurekaserver3
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+    loadbalancer:
+      ribbon:
+        enabled: false
+
+server:
+  port: 8761
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  instance:
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+    renewal-percent-threshold: 0.85
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+logging:
+  level:
+    org:
+      springframework: DEBUG

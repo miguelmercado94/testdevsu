@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: personadevsu
+  cloud:
+    config:
+      import: optional:configserver  # Configuración opcional desde Config Server
+      import-check:
+        enabled: false  # Desactiva la verificación de importación
+    enabled: false  # Deshabilita el cliente de configuración de Spring Cloud Config
+
+server:
+  port: 8088
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    registerWithEureka: true
+    fetchRegistry: true

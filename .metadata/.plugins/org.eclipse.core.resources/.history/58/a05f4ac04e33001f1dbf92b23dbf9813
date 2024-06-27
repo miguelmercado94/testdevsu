@@ -1,0 +1,21 @@
+spring.application.name=devsueureka
+server.port=8762
+
+# Configuración de Eureka Client
+eureka.client.register-with-eureka=false
+eureka.client.fetch-registry=false
+eureka.instance.lease-renewal-interval-in-seconds=30
+eureka.instance.lease-expiration-duration-in-seconds=90
+eureka.renewal-percent-threshold=0.85
+
+# Exponer todos los endpoints de gestión
+management.endpoints.web.exposure.include=*
+
+# Deshabilitar Ribbon explícitamente si no se usa LoadBalancer
+spring.cloud.loadbalancer.ribbon.enabled=false
+
+# Deshabilitar el cliente de configuración de Spring Cloud Config
+spring.cloud.config.enabled=false
+
+# Configuración de nivel de logging para Spring
+logging.level.org.springframework=DEBUG

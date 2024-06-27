@@ -1,0 +1,32 @@
+spring.application.name=personadevsu
+server.servlet.context-path=/devsu
+server.port=8087
+#swagger
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.swagger-ui.enabled=true
+# H2 Database configuration
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+# JPA / Hibernate configuration
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+# Additional Hibernate properties
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
+spring.jpa.properties.hibernate.id.new_generator_mappings=true
+spring.jpa.properties.hibernate.globally_quoted_identifiers=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+#CLOUD CONFIG
+spring.cloud.config.import=optional:configserver
+spring.cloud.config.import-check.enabled=false
+spring.cloud.config.enabled=false
+#EUREKA CONFIG
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka/
+eureka.client.registerWithEureka=true
+eureka.client.fetchRegistry=true
+#Personales
+cuentadevsu.url=http://cuentadevsu:8086/devsu/api/cuentas/v1/cliente

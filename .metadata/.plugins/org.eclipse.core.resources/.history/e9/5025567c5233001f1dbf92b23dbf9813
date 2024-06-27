@@ -1,0 +1,189 @@
+package com.devsu.micropersona.dominio.servicio;
+
+import reactor.netty.http.client.HttpClient;
+
+import java.time.Duration;
+import java.util.Date;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import com.devsu.micropersona.bd.entidad.Cliente;
+import com.devsu.micropersona.bd.repositorio.ClienteRepositorio;
+import com.devsu.micropersona.dominio.dto.ClienteDTORequest;
+import com.devsu.micropersona.dominio.dto.CuentaDto;
+import com.devsu.micropersona.dominio.mapper.ClienteMapper;
+import com.devsu.micropersona.dominio.util.UtilServicio;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
+
+@Service
+public class ClienteServicio implements IClienteServicio {
+	
+    @Autowired
+    private ClienteRepositorio repoCliente;
+	
+    @Autowired
+    private ClienteMapper mapper;
+	
+    private final WebClient.Builder webBuilder;
+    private final ObjectMapper objectMapper;
+    private final HttpClient httpClient;
+
+    
+    public ClienteServicio(WebClient.Builder webBuilder, ObjectMapper objectMapper) {
+        this.webBuilder = webBuilder;
+        this.objectMapper = objectMapper;
+
+        this.httpClient = HttpClient.create()
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+            .option(ChannelOption.SO_KEEPALIVE, true)
+            .responseTimeout(Duration.ofSeconds(1))
+            .doOnConnected(connection -> {
+                connection.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS));
+                connection.addHandlerLast(new WriteTimeoutHandler(5000, TimeUnit.MILLISECONDS));
+            });
+    }
+
+    @Override
+    public ClienteDTORequest crearNuevoCliente(ClienteDTORequest cliente) {
+        Cliente auxCliente = repoCliente.save(mapper.toCliente(cliente));
+        if (auxCliente.getClienteId() > 0L) {
+            return mapper.toClienteDTORequest(auxCliente);
+        }
+        return null;
+    }
+
+    @Override
+    public ClienteDTORequest actualizarCliente(ClienteDTORequest cliente) {
+        Cliente oldCliente = repoCliente.findByIdentificacion(cliente.getIdentificacion()).orElse(null);
+
+        if (oldCliente != null) {
+            oldCliente.setNombre(cliente.getNombre());
+            oldCliente.setEdad(cliente.getEdad());
+            oldCliente.setGenero(cliente.getGenero());
+            oldCliente.setDireccion(cliente.getDireccion());
+            oldCliente.setTelefono(cliente.getTelefono());
+            oldCliente.setContrasena(cliente.getContrasena());
+            oldCliente.setEstado(cliente.getEstado());
+
+            Cliente clienteActualizado = repoCliente.save(oldCliente);
+            return mapper.toClienteDTORequest(clienteActualizado);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void eliminarCliente(String identificacion) {
+        Cliente auxCliente = repoCliente.findByIdentificacion(identificacion).get();
+        repoCliente.delete(auxCliente);
+    }
+
+    @Override
+    public ClienteDTORequest obtenerCliente(String identificacion) {
+    	
+    	Optional<Cliente> cliente= repoCliente.findByIdentificacion(identificacion);
+    	
+    	if(cliente.isPresent()) {
+    		ClienteDTORequest clienteAux = mapper.toClienteDTORequest(cliente.get());
+            clienteAux.setCuentas(getCuentaCliente(identificacion));
+            return clienteAux;
+    	}
+    	
+        return null;
+    }
+
+    @Override
+    public List<ClienteDTORequest> obtenerTodosClienteSinDatosCuenta() {
+        return mapper.toDtoList(repoCliente.findAll());
+    }
+    
+    @Override
+    public List<ClienteDTORequest> obtenerTodosClienteDatosCuenta() {
+        return mapper.toDtoList(repoCliente.findAll()).stream().map(cliente -> {
+            cliente.setCuentas(getCuentaCliente(cliente.getIdentificacion()));
+            return cliente;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+	public ClienteDTORequest obtenerClienteYReporteCuenta(String identificacion, String nummeroCuenta,
+			Date fechaInicial, Date fechaFinal) {
+		
+	Optional<Cliente> cliente= repoCliente.findByIdentificacion(identificacion);
+    	
+    	if(cliente.isPresent()) {
+    		ClienteDTORequest clienteAux = mapper.toClienteDTORequest(cliente.get());
+    		
+    		CuentaDto cuentaAux = getCuentaReporteCliente(identificacion, nummeroCuenta,
+            		UtilServicio.DateToString(fechaInicial,null), UtilServicio.DateToString(fechaFinal,null));
+    		
+            clienteAux.setCuentas(Arrays.asList(cuentaAux));
+            
+            return clienteAux;
+    	}
+    	
+        return null;
+	}
+
+    private List<CuentaDto> getCuentaCliente(String identificacion) {
+        WebClient build = webBuilder.clientConnector(new ReactorClientHttpConnector(httpClient))
+                .baseUrl("http://cuentadevsu:8086/devsu/api/cuentas/v1/cliente")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultUriVariables(Collections.singletonMap("url", "http://cuentadevsu:8086/devsu/api/cuentas/v1/cliente"))
+                .build();
+
+        String uri = String.format("/%s", identificacion);
+
+        JsonNode block = build.method(HttpMethod.GET)
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .block();
+
+        try {
+            return Arrays.asList(objectMapper.treeToValue(block, CuentaDto[].class));
+        } catch (Exception e) {
+            throw new RuntimeException("Error al mapear JsonNode a CuentaDto", e);
+        }
+    }
+
+    private CuentaDto getCuentaReporteCliente(String identificacion, String numeroCuenta, String fechaInicial, String fechaFinal) {
+        WebClient build = webBuilder.clientConnector(new ReactorClientHttpConnector(httpClient))
+                .baseUrl("http://cuentadevsu:8086/devsu/api/cuentas/v1/cliente")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultUriVariables(Collections.singletonMap("url", "http://cuentadevsu:8086/devsu/api/cuentas/v1/cliente"))
+                .build();
+
+        String uri = String.format("/%s", identificacion);
+
+        JsonNode block = build.method(HttpMethod.GET)
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .block();
+
+        try {
+            return objectMapper.treeToValue(block, CuentaDto.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al mapear JsonNode a CuentaDto", e);
+        }
+    }
+    
+}

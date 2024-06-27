@@ -1,0 +1,26 @@
+package com.devsu.microcuenta.dominio.dto;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.List;
+
+import com.devsu.microcuenta.dominio.util.TipoCuenta;
+
+@Data
+public class CuentaDto implements Serializable{
+
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private Long id;
+    private String numeroCuenta;
+    private TipoCuenta tipoCuenta;
+    private BigDecimal saldoInicial;
+    private String estado;
+    private String cliente;
+    private List<MovimientoDTO> movimientos;
+}

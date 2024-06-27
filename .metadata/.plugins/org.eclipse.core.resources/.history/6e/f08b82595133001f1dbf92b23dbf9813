@@ -1,0 +1,25 @@
+package com.devsu.micropersona.dominio.dto;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Data
+@EqualsAndHashCode(callSuper=false)
+public class MovimientoDTO  implements Serializable{
+
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+    private Long id;
+    private Date fecha;
+    private BigDecimal saldo;
+    private String tipoMovimiento;
+    private BigDecimal valor;
+    private Long cuentaId; 
+}

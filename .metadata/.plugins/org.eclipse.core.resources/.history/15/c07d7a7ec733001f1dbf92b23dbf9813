@@ -1,0 +1,96 @@
+package com.devsu.micropersona.dominio.controller;
+
+
+import com.devsu.micropersona.dto.ClienteDTORequest;
+import com.devsu.micropersona.servicio.IClienteServicio;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/clientes/v1")
+public class ClienteController {
+
+    @Autowired
+    private IClienteServicio clienteServicio;
+
+    @PostMapping
+    public ResponseEntity<ClienteDTORequest> crearNuevoCliente(@RequestBody ClienteDTORequest clienteDTORequest) throws URISyntaxException {
+        ClienteDTORequest nuevoCliente = clienteServicio.crearNuevoCliente(clienteDTORequest);
+        if (nuevoCliente != null) {
+        	 URI location = new URI("/api/clientes/" + nuevoCliente.getIdentificacion());
+             return ResponseEntity.created(location).body(nuevoCliente);
+        } else {
+            return ResponseEntity.status(400).build();
+        }
+    }
+
+    @PutMapping
+    public ResponseEntity<ClienteDTORequest> actualizarCliente(@RequestBody ClienteDTORequest clienteDTORequest) {
+        ClienteDTORequest clienteActualizado = clienteServicio.actualizarCliente(clienteDTORequest);
+        if (clienteActualizado != null) {
+            return ResponseEntity.ok(clienteActualizado);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{identificacion}")
+    public ResponseEntity<Void> eliminarCliente(@PathVariable String identificacion)  {
+    	try {
+        clienteServicio.eliminarCliente(identificacion);
+		 return ResponseEntity.ok().build();
+
+    	}catch(Exception e) {
+    		 System.out.println(e.getMessage());
+    		 return ResponseEntity.noContent().build();
+    	}
+    }
+
+    @GetMapping("/{identificacion}")
+    public ResponseEntity<ClienteDTORequest> obtenerCliente(@PathVariable String identificacion) {
+        ClienteDTORequest cliente = clienteServicio.obtenerCliente(identificacion);
+        if (cliente != null) {
+            return ResponseEntity.ok(cliente);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ClienteDTORequest>> obtenerTodosClientesSinDatosCuenta() {
+        List<ClienteDTORequest>  clientes = clienteServicio.obtenerTodosClienteSinDatosCuenta();
+        
+        if(clientes!= null && !clientes.isEmpty())
+        return ResponseEntity.ok(clientes);
+        else
+        return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/full")
+    public ResponseEntity<List<ClienteDTORequest>> obtenerTodosClientes() {
+        List<ClienteDTORequest> clientes = clienteServicio.obtenerTodosClienteDatosCuenta();
+       
+        if(clientes!= null && !clientes.isEmpty())
+            return ResponseEntity.ok(clientes);
+            else
+            return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/reporte")
+    public ResponseEntity<List<ClienteDTORequest>> obtenerClienteYReporte(
+    		@RequestParam String identificacion, @RequestParam String numeroCuenta,
+    		@RequestParam String fechaInicial, @RequestParam String fechaFinal) {
+    	
+        List<ClienteDTORequest> clientes = clienteServicio.obtenerTodosClienteDatosCuenta();
+       
+        if(clientes!= null && !clientes.isEmpty())
+            return ResponseEntity.ok(clientes);
+            else
+            return ResponseEntity.noContent().build();
+    }
+}

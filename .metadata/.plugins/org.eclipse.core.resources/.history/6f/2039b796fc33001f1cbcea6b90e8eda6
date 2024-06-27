@@ -1,0 +1,13 @@
+package com.devsu.personadevsu;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class PersonadevsuApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
