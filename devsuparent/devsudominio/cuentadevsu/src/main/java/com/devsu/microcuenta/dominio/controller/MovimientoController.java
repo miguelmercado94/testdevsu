@@ -7,27 +7,35 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/movimientos/v1")
-@Api(value = "Sistema de Gestión de Movimientos", description = "Operaciones relacionadas con la gestión de movimientos")
+@Tag(name = "Sistema de Gestión de Movimientos", description = "Operaciones relacionadas con la gestión de movimientos")
 public class MovimientoController {
 
     @Autowired
     private MovimientoServicio movimientoServicio;
 
-    @ApiOperation(value = "Agregar un nuevo movimiento")
+    @Operation(summary = "Agregar un nuevo movimiento")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Movimiento creado con éxito"),
-            @ApiResponse(code = 400, message = "Solicitud incorrecta")
+            @ApiResponse(responseCode = "201", description = "Movimiento creado con éxito", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = MovimientoDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud incorrecta", content = @Content)
     })
     @PostMapping
     public ResponseEntity<MovimientoDTO> agregarNuevoMovimiento(
-            @ApiParam(value = "Detalles del movimiento a crear", required = true)
-            @RequestBody MovimientoDTO dto) {
+            @RequestBody(description = "Detalles del movimiento a crear", required = true) 
+             MovimientoDTO dto) {
         MovimientoDTO nuevoMovimiento = movimientoServicio.agregarNuevoMovimiento(dto);
         if (nuevoMovimiento != null) {
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevoMovimiento);
@@ -36,14 +44,15 @@ public class MovimientoController {
         }
     }
 
-    @ApiOperation(value = "Obtener un movimiento por ID")
+    @Operation(summary = "Obtener un movimiento por ID")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Movimiento encontrado"),
-            @ApiResponse(code = 404, message = "Movimiento no encontrado")
+            @ApiResponse(responseCode = "200", description = "Movimiento encontrado", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = MovimientoDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Movimiento no encontrado", content = @Content)
     })
     @GetMapping("/{id}")
     public ResponseEntity<MovimientoDTO> obtenerMovimiento(
-            @ApiParam(value = "ID del movimiento a obtener", required = true)
+            @Parameter(description = "ID del movimiento a obtener", required = true)
             @PathVariable(name = "id") Long id) {
         MovimientoDTO movimiento = movimientoServicio.obtenerMovimiento(id);
         if (movimiento != null) {
@@ -53,14 +62,15 @@ public class MovimientoController {
         }
     }
 
-    @ApiOperation(value = "Obtener todos los movimientos de una cuenta por ID de cuenta")
+    @Operation(summary = "Obtener todos los movimientos de una cuenta por ID de cuenta")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Movimientos encontrados"),
-            @ApiResponse(code = 204, message = "No hay movimientos disponibles para la cuenta")
+            @ApiResponse(responseCode = "200", description = "Movimientos encontrados", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = MovimientoDTO.class))),
+            @ApiResponse(responseCode = "204", description = "No hay movimientos disponibles para la cuenta", content = @Content)
     })
     @GetMapping("/cuenta/{idCuenta}")
     public ResponseEntity<List<MovimientoDTO>> obtenerMovimientosPorCuenta(
-            @ApiParam(value = "ID de la cuenta para obtener sus movimientos", required = true)
+            @Parameter(description = "ID de la cuenta para obtener sus movimientos", required = true)
             @PathVariable(name = "idCuenta") Long idCuenta) {
         List<MovimientoDTO> movimientos = movimientoServicio.obtenerMovimientosPorCuenta(idCuenta);
         if (movimientos != null && !movimientos.isEmpty()) {
@@ -70,14 +80,15 @@ public class MovimientoController {
         }
     }
 
-    @ApiOperation(value = "Obtener todos los movimientos de una cuenta por número de cuenta")
+    @Operation(summary = "Obtener todos los movimientos de una cuenta por número de cuenta")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Movimientos encontrados"),
-            @ApiResponse(code = 204, message = "No hay movimientos disponibles para la cuenta")
+            @ApiResponse(responseCode = "200", description = "Movimientos encontrados", 
+                         content = @Content(mediaType = "application/json", schema = @Schema(implementation = MovimientoDTO.class))),
+            @ApiResponse(responseCode = "204", description = "No hay movimientos disponibles para la cuenta", content = @Content)
     })
     @GetMapping("/cuenta/numero/{numeroCuenta}")
     public ResponseEntity<List<MovimientoDTO>> obtenerMovimientosPorNumeroCuenta(
-            @ApiParam(value = "Número de cuenta para obtener sus movimientos", required = true)
+            @Parameter(description = "Número de cuenta para obtener sus movimientos", required = true)
             @PathVariable(name = "numeroCuenta") String numeroCuenta) {
         List<MovimientoDTO> movimientos = movimientoServicio.obtenerMovimientosPorNumeroCuenta(numeroCuenta);
         if (movimientos != null && !movimientos.isEmpty()) {

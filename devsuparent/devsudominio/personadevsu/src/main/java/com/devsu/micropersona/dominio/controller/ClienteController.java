@@ -6,7 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,21 +20,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/clientes/v1")
-@Api(value = "Sistema de Gestión de Clientes", description = "Operaciones relacionadas con la gestión de clientes")
 public class ClienteController {
 
     @Autowired
     private IClienteServicio clienteServicio;
 
-    @ApiOperation(value = "Crear un nuevo cliente")
+    @Operation(summary = "Crear un nuevo cliente")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Cliente creado con éxito"),
-            @ApiResponse(code = 400, message = "Solicitud incorrecta")
+            @ApiResponse(responseCode = "201", description = "Cliente creado con éxito"),
+            @ApiResponse(responseCode = "400", description = "Solicitud incorrecta")
     })
     @PostMapping
     public ResponseEntity<ClienteDto> crearNuevoCliente(
-            @ApiParam(value = "Detalles del cliente a crear", required = true)
-            @RequestBody ClienteDto clienteDTORequest) throws URISyntaxException {
+            @RequestBody(description = "Detalles del cliente a crear", required = true, content = @Content(schema = @Schema(implementation = ClienteDto.class)))
+            ClienteDto clienteDTORequest) throws URISyntaxException {
         ClienteDto nuevoCliente = clienteServicio.crearNuevoCliente(clienteDTORequest);
         if (nuevoCliente != null) {
             URI location = new URI("/api/clientes/" + nuevoCliente.getIdentificacion());
@@ -38,15 +43,15 @@ public class ClienteController {
         }
     }
 
-    @ApiOperation(value = "Actualizar un cliente existente")
+    @Operation(summary = "Actualizar un cliente existente")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Cliente actualizado con éxito"),
-            @ApiResponse(code = 404, message = "Cliente no encontrado")
+            @ApiResponse(responseCode = "200", description = "Cliente actualizado con éxito"),
+            @ApiResponse(responseCode = "404", description = "Cliente no encontrado")
     })
     @PutMapping
     public ResponseEntity<ClienteDto> actualizarCliente(
-            @ApiParam(value = "Detalles del cliente a actualizar", required = true)
-            @RequestBody ClienteDto clienteDTORequest) {
+            @RequestBody(description = "Detalles del cliente a actualizar", required = true, content = @Content(schema = @Schema(implementation = ClienteDto.class)))
+            ClienteDto clienteDTORequest) {
         ClienteDto clienteActualizado = clienteServicio.actualizarCliente(clienteDTORequest);
         if (clienteActualizado != null) {
             return ResponseEntity.ok(clienteActualizado);
@@ -55,14 +60,14 @@ public class ClienteController {
         }
     }
 
-    @ApiOperation(value = "Eliminar un cliente por identificación")
+    @Operation(summary = "Eliminar un cliente por identificación")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Cliente eliminado con éxito"),
-            @ApiResponse(code = 204, message = "Cliente no encontrado")
+            @ApiResponse(responseCode = "200", description = "Cliente eliminado con éxito"),
+            @ApiResponse(responseCode = "204", description = "Cliente no encontrado")
     })
     @DeleteMapping("/{identificacion}")
     public ResponseEntity<Void> eliminarCliente(
-            @ApiParam(value = "Identificación del cliente a eliminar", required = true)
+            @Parameter(description = "Identificación del cliente a eliminar", required = true)
             @PathVariable(name = "identificacion") String identificacion) {
         try {
             clienteServicio.eliminarCliente(identificacion);
@@ -73,14 +78,14 @@ public class ClienteController {
         }
     }
 
-    @ApiOperation(value = "Obtener un cliente por identificación")
+    @Operation(summary = "Obtener un cliente por identificación")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Cliente encontrado"),
-            @ApiResponse(code = 404, message = "Cliente no encontrado")
+            @ApiResponse(responseCode = "200", description = "Cliente encontrado"),
+            @ApiResponse(responseCode = "404", description = "Cliente no encontrado")
     })
     @GetMapping("/{identificacion}")
     public ResponseEntity<ClienteDto> obtenerCliente(
-            @ApiParam(value = "Identificación del cliente a obtener", required = true)
+            @Parameter(description = "Identificación del cliente a obtener", required = true)
             @PathVariable(name = "identificacion") String identificacion) {
         ClienteDto cliente = clienteServicio.obtenerCliente(identificacion);
         if (cliente != null) {
@@ -89,15 +94,15 @@ public class ClienteController {
             return ResponseEntity.notFound().build();
         }
     }
-    
-    @ApiOperation(value = "Obtener un cliente completo por identificación")
+
+    @Operation(summary = "Obtener un cliente completo por identificación")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Cliente encontrado"),
-            @ApiResponse(code = 404, message = "Cliente no encontrado")
+            @ApiResponse(responseCode = "200", description = "Cliente encontrado"),
+            @ApiResponse(responseCode = "404", description = "Cliente no encontrado")
     })
     @GetMapping("/full/{identificacion}")
     public ResponseEntity<ClienteDto> obtenerClienteFull(
-            @ApiParam(value = "Identificación del cliente a obtener", required = true)
+            @Parameter(description = "Identificación del cliente a obtener", required = true)
             @PathVariable(name = "identificacion") String identificacion) {
         ClienteDto cliente = clienteServicio.obtenerClienteFull(identificacion);
         if (cliente != null) {
@@ -107,10 +112,10 @@ public class ClienteController {
         }
     }
 
-    @ApiOperation(value = "Obtener todos los clientes sin datos de cuenta")
+    @Operation(summary = "Obtener todos los clientes sin datos de cuenta")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Clientes encontrados"),
-            @ApiResponse(code = 204, message = "No hay clientes")
+            @ApiResponse(responseCode = "200", description = "Clientes encontrados"),
+            @ApiResponse(responseCode = "204", description = "No hay clientes")
     })
     @GetMapping("/all")
     public ResponseEntity<List<ClienteDto>> obtenerTodosClientesSinDatosCuenta() {
@@ -121,11 +126,11 @@ public class ClienteController {
             return ResponseEntity.noContent().build();
         }
     }
-    
-    @ApiOperation(value = "Obtener todos los clientes con datos de cuenta")
+
+    @Operation(summary = "Obtener todos los clientes con datos de cuenta")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Clientes encontrados"),
-            @ApiResponse(code = 204, message = "No hay clientes")
+            @ApiResponse(responseCode = "200", description = "Clientes encontrados"),
+            @ApiResponse(responseCode = "204", description = "No hay clientes")
     })
     @GetMapping("/all/full")
     public ResponseEntity<List<ClienteDto>> obtenerTodosClientes() {
@@ -136,23 +141,23 @@ public class ClienteController {
             return ResponseEntity.noContent().build();
         }
     }
-    
-    @ApiOperation(value = "Obtener cliente y reporte por parámetros")
+
+    @Operation(summary = "Obtener cliente y reporte por parámetros")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Clientes encontrados"),
-            @ApiResponse(code = 204, message = "No hay clientes")
+            @ApiResponse(responseCode = "200", description = "Clientes encontrados"),
+            @ApiResponse(responseCode = "204", description = "No hay clientes")
     })
     @GetMapping("/reporte")
     public ResponseEntity<List<ClienteDto>> obtenerClienteYReporte(
-            @ApiParam(value = "Identificación del cliente", required = true)
+            @Parameter(description = "Identificación del cliente", required = true)
             @RequestParam(name = "identificacion") String identificacion,
-            @ApiParam(value = "Número de cuenta del cliente", required = true)
+            @Parameter(description = "Número de cuenta del cliente", required = true)
             @RequestParam(name = "numeroCuenta") String numeroCuenta,
-            @ApiParam(value = "Fecha inicial del reporte", required = true)
+            @Parameter(description = "Fecha inicial del reporte", required = true)
             @RequestParam(name = "fechaInicial") String fechaInicial,
-            @ApiParam(value = "Fecha final del reporte", required = true)
+            @Parameter(description = "Fecha final del reporte", required = true)
             @RequestParam(name = "fechaFinal") String fechaFinal) {
-        
+
         List<ClienteDto> clientes = clienteServicio.obtenerTodosClienteDatosCuenta();
         if (clientes != null && !clientes.isEmpty()) {
             return ResponseEntity.ok(clientes);
