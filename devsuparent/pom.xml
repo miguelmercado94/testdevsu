@@ -121,6 +121,7 @@
 						<JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
 					</buildArgs>
 					<dockerfile>${project.basedir}/Dockerfile</dockerfile>
+					<noCache>true</noCache>
 				</configuration>
 			</plugin>
 

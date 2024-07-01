@@ -5,6 +5,9 @@ services:
     container_name: eurekaserver
     ports:
       - "8761:8761"
+    networks:
+      - custom_network
+
   personadevsu:
     image: devsu/microservice-docker-personadevsu:0.0.1
     container_name: personadevsu
@@ -12,6 +15,11 @@ services:
       - "8087:8087"
     depends_on:
       - eurekaserver
+    environment:
+      - JAVA_OPTS=-Deureka.client.serviceUrl.defaultZone=http://eurekaserver:8761/eureka
+    networks:
+      - custom_network
+
   cuentadevsu:
     image: devsu/microservice-docker-cuentadevsu:0.0.1
     container_name: cuentadevsu
@@ -19,6 +27,11 @@ services:
       - "8086:8086"
     depends_on:
       - eurekaserver
+    environment:
+      - JAVA_OPTS=-Deureka.client.serviceUrl.defaultZone=http://eurekaserver:8761/eureka
+    networks:
+      - custom_network
+
 networks:
-  default:
+  custom_network:
     driver: bridge
